@@ -1,0 +1,165 @@
+﻿@model E_Commerce.Product
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int imageCount = Directory.GetFiles(Directory.GetCurrentDirectory() + "\\wwwroot\\Image\\", Model.ProductId.ToString() + "-*").Length;
+}
+<script>
+ 
+    function changeImage(buttonNumber) {
+        var imageButton = document.getElementById("file-"+buttonNumber); //hangi file ın tetiklendiğini söyler
+      
+        imageButton.click();
+    }
+
+    //function changed(imageFiles, imageNumber) {
+
+    //    var productImage = document.getElementById("img-"+imageNumber);
+    
+    //    productImage.src = URL.createObjectURL(imageFiles); // değiştirilen resim için yeni url oluşturuldu
+
+    //}
+    function changed(buttonId) {
+        var fileButton = document.getElementById(buttonId);
+        var imageNumber = buttonId.substring(5);
+        
+        var productImage = document.getElementById("img-" + imageNumber);
+        
+        var imageFiles = fileButton.files[0];
+        productImage.src = URL.createObjectURL(imageFiles);
+
+        var firstButton = document.getElementById("delete-" + imageNumber);
+        firstButton.style.display = "inline";
+        imageNumber++;
+        if (imageNumber < 5) {
+            var firstImage = document.getElementById("img-" + imageNumber);
+            firstImage.style.display = "inline";
+        }
+    }
+    function showFirstImage() {
+
+        var firstImage = document.getElementById("img-0");
+        firstImage.style.display = "inline";
+
+    }
+    function deleteImage(deleteId) {//eklenen resimlerin yanına delete butonu ekleme, resim ekleyip silme
+
+        var nextObject, currentObject, j, image3, parentDiv;
+
+        currentObject = document.getElementById("file-" + deleteId);
+        parentDiv = currentObject.parentElement;
+        parentDiv.removeChild(currentObject);
+
+        for (i = deleteId; i < 4; i++) {
+
+            j = i + 1;
+            currentObject = document.getElementById("img-" + i);
+            nextObject = document.getElementById("img-" + j);
+            currentObject.src = nextObject.src;
+            currentObject.style.display = nextObject.style.display;
+
+            currentObject = document.getElementById("delete-" + i);
+            nextObject = document.getElementById("delete-" + j);
+            currentObject.style.display = nextObject.style.display;
+
+            nextObject = document.getElementById("file-" + j);
+            nextObject.id = "file-" + i;
+
+        }
+        currentObject = document.getElementById("delete-4");
+        currentObject.style.display = "none";
+
+        currentObject = document.getElementById("img-4");
+        currentObject.src = "/Image/plus.jpg";
+        image3 = document.getElementById("img-3");
+
+        if (image3.src == "http://localhost:35504/Image/plus.jpg") {
+            currentObject.style.display = "none";
+        }
+        currentObject = document.createElement("input");
+        currentObject.type = "file";
+        currentObject.id = "file-4";
+        currentObject.name = "file-4";
+        currentObject.style.display = "none";
+        currentObject.onchange = function() { changed(this.id); }
+        parentDiv.appendChild(currentObject);
+    }
+    $(document).ready(showFirstImage);
+
+</script>
+<h1>Edit</h1>
+
+<h4>Product</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ProductId" />
+            <input type="hidden" asp-for="SellerId" />
+            <input type="hidden" asp-for="ProductRate" />@* null olmaması için  *@
+
+            <div class="form-group">
+                <label asp-for="ProductName" class="control-label"></label>
+                <input asp-for="ProductName" class="form-control" />
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductPrice" class="control-label"></label>
+                <input asp-for="ProductPrice" class="form-control" />
+                <span asp-validation-for="ProductPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ProductDescription" class="control-label"></label>
+                <input asp-for="ProductDescription" class="form-control" />
+                <span asp-validation-for="ProductDescription" class="text-danger"></span>
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsDeleted" /> @Html.DisplayNameFor(model => model.IsDeleted)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="CategoryId" class="control-label"></label>
+                <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.CategoryId"></select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BrandId" class="control-label"></label>
+                <select asp-for="BrandId" class="form-control" asp-items="ViewBag.BrandId"></select>
+                <span asp-validation-for="BrandId" class="text-danger"></span>
+            </div>
+
+            @for (byte i = 0; i < 5; i++)
+            {
+                string imagePath = "/Image/" + Model.ProductId.ToString() + "-" + i.ToString() + ".jpg";
+                <img src="@imagePath" style="height:250px" onclick="changeImage(@i)" id="img-@i" />
+            }
+            @for (byte i=0; i<5; i++)
+            {
+               @* <input type="file" name="file-@i" id="file-@i" onchange="changed(this.files[0],@i)" style="display:none" />*@
+                 <img src="/Image/plus.jpg" style="display:none;" onclick="changeImage(@i)" id="img-@i" height="50" />
+               <input type="button" value="X" id="delete-@i" style="display:none" onclick="deleteImage(@i)" />
+                <input type="file" name="file-@i" id="file-@i" onchange="changed(this.id)" style="display:none" />
+
+            }
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    }

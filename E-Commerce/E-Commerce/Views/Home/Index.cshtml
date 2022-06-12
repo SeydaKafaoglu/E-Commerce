@@ -1,0 +1,56 @@
+﻿@model IEnumerable<E_Commerce.Product>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string imagePath;
+}
+
+<h1>Index</h1>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>@ViewData["Title"] - water1</title>
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+@*<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />*@
+
+@*        <meta name="viewport" content="width=device-width" />*@
+<script type="text/javascript">
+    function addCart(item) {
+        $("#iconNumber").load("@Url.Action("Add" , "Cart")/" + item)
+    }
+</script>
+<div class="row" id="prod">
+
+    @foreach (var item in Model)
+    {
+        imagePath = "/Image/" + item.ProductId.ToString() + "-0.jpg";
+
+        <div class="col-md-4">
+            <div id="home">
+                <img src="@imagePath" style="height:250px" />
+
+                @Html.DisplayFor(modelItem => item.ProductName)
+
+                @Html.DisplayFor(modelItem => item.ProductPrice)
+
+                @Html.DisplayFor(modelItem => item.ProductDescription)
+
+                @Html.DisplayFor(modelItem => item.ProductRate)
+
+                @Html.DisplayFor(modelItem => item.Category.CategoryName)
+
+                @Html.DisplayFor(modelItem => item.Brand.BrandName)
+
+                <a asp-action="Details" asp-route-id="@item.ProductId">
+                    Details
+                </a>
+
+                <a onclick="addCart('@item.ProductId')"><i class="fa fa-shopping-cart" style="font-size:24px"></i>Sepete Ekle</a>
+
+            </div>
+
+        </div>
+    }
+</div>
+
+
